@@ -21,7 +21,6 @@ class link {
         ## Первый символ ссылки - слэш /
   		if(!is_null($link) && $link != "/" && mb_substr($link, 0, 1) != '/')
 			$link = '/'.$link;
-        $link = Config::get('app.local_prefix_url').$link;
         ## Берем локаль из сесссии (если она там есть)
         $locale_session = Session::get('locale');
         #echo "session locale = " . $locale_session; die;
@@ -86,9 +85,9 @@ class link {
 		if(!is_null($link) && $link != "/" && mb_substr($link, 0, 1) != '/'):
 			$link = '/'.$link;
         endif;
-//        Helper::dd($link);
+//        Helper::dd(url($link));
 //        return url($link);
-        return Config::get('app.local_prefix_url').$link;
+        return url($link);
 
 		$_locale = Session::get('locale');
 
