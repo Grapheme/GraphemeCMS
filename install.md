@@ -18,7 +18,7 @@
 
 ## 3. Установка и настройка проекта
 
-**1. Клонируем проект с репозитория github **
+**1. Клонируем проект с репозитория github**
 
 `git clone <адрес на гитхабе>`
 
@@ -30,16 +30,16 @@
 
 `php composer.phar install`
 
-**4. Создаем базу данных. Имя БД можно можно узнать из файла app/config/database.php [mysql.database];**
-**5. Не обязательно! В корне проекта создаем файл .htaccess, если он не существует. Вносим в него следующий текст:**
+**4. Создаем базу данных.** 
+Имя БД можно можно узнать из файла app/config/database.php [mysql.database];
+**5. Не обязательно! В корне проекта создаем файл .htaccess, если он не существует.** 
+Вносим в него следующий текст:
 
 `AddDefaultCharset utf-8`
 
 `Options +FollowSymLinks`
 
 `Options -Indexes`
-
-` `
 
 `php_value upload_max_filesize 20M`
 
@@ -48,8 +48,6 @@
 `php_value max_execution_time 500`
 
 `php_value max_input_time 500`
-
-` `
 
 `<IfModule mod_rewrite.c>`
 
