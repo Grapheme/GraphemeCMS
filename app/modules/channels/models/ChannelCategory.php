@@ -7,6 +7,7 @@ class ChannelCategory extends BaseModel {
     #public $timestamps = false;
 
 	public static $rules = array(
+		'slug' => 'required',
 		'title' => 'required',
 		#'desc' => 'required',
 	);

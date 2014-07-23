@@ -15,13 +15,21 @@
 			<div class="well">
 				<header>Для изменения категории отредактируйте форму:</header>
 				<fieldset>
+                    <section>
+                        <label class="label">
+                            Идентификатор страницы
+                            <div class="note">Может содержать <strong>только</strong> английские буквы в нижнем регистре, цифры, знаки подчеркивания и тире</div>
+                        </label>
+                        <label class="input col-5"> <i class="icon-append fa fa-list-alt"></i>
+                            {{ Form::text('slug',NULL,array('class'=>'disabled','readonly'=>'readonly')) }}
+                        </label>
+                    </section>
 					<section>
 						<label class="label">Название</label>
 						<label class="input">
 							{{ Form::text('title') }}
 						</label>
 					</section>
-
 				</fieldset>
 				<footer>
 					<a class="btn btn-default no-margin regular-10 uppercase pull-left btn-spinner" href="{{URL::previous()}}">
@@ -43,10 +51,12 @@
     var essence = 'category';
     var essence_name = 'категория';
 	var validation_rules = {
+        slug: { required: true },
 		title: { required: true },
 		//desc: { required: true },
 	};
 	var validation_messages = {
+        slug: { required: 'Укажите идентификатор' },
 		title: { required: 'Укажите название' },
 		//desc: { required: 'Укажите описание' },
 	};
