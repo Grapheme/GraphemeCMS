@@ -21,7 +21,7 @@ class link {
         ## Первый символ ссылки - слэш /
   		if(!is_null($link) && $link != "/" && mb_substr($link, 0, 1) != '/')
 			$link = '/'.$link;
-
+        $link = Config::get('app.local_prefix_url').$link;
         ## Берем локаль из сесссии (если она там есть)
         $locale_session = Session::get('locale');
         #echo "session locale = " . $locale_session; die;
@@ -52,9 +52,9 @@ class link {
 		if(!is_null($link) && $link != "/" && mb_substr($link, 0, 1) != '/')
 			$link = '/'.$link;
 
-        #$_locale = Session::get('locale');
+//        $_locale = Session::get('locale');
 
-        #Helper::dd( AuthAccount::getStartPage() );
+//        Helper::dd( AuthAccount::getStartPage() );
 
 		if(Auth::check()) {
             $return = self::createLink(AuthAccount::getStartPage().$link);
@@ -83,13 +83,12 @@ class link {
 
 	public static function createLink($link = NULL){
 
-		if(!is_null($link) && $link != "/" && mb_substr($link, 0, 1) != '/')
+		if(!is_null($link) && $link != "/" && mb_substr($link, 0, 1) != '/'):
 			$link = '/'.$link;
-
-        #Helper::dd($link);
-
-        #return url($link);
-        return $link;
+        endif;
+//        Helper::dd($link);
+//        return url($link);
+        return Config::get('app.local_prefix_url').$link;
 
 		$_locale = Session::get('locale');
 

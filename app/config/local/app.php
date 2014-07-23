@@ -10,4 +10,6 @@ return array(
 	'use_scripts_local' => TRUE,
 	
 	'debug' => TRUE,
+
+	'local_prefix_url' => '',
 );

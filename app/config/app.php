@@ -15,6 +15,7 @@ return array(
 
 	'debug' => FALSE,
 	'url' => '',
+	'local_prefix_url' => '',
 	'timezone' => 'UTC',
 	'locale' => 'ru',
 	#'locales' => array('ru', 'en', 'de'),
