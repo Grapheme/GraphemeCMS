@@ -31,7 +31,7 @@
 `php composer.phar install`
 
 4) Создаем базу данных.
-Имя БД можно можно узнать из файла app/config/database.php [mysql.database];
+Имя БД по умолчанию, можно можно узнать из файла app/config/database.php [mysql.database];
 
 5) Не обязательно! В корне проекта создаем файл .htaccess, если он не существует.
 Вносим в него следующий текст:
