@@ -1,61 +1,62 @@
-Установка и настройка Grapheme CMS
+# Setup and install GRPHM CMS
 
-----------------------------------------------------------------------------------------------------
-Установка Composer
-php -r "readfile('https://getcomposer.org/installer');" | php
-----------------------------------------------------------------------------------------------------
+## 1. Установка Composer
+Для работы фреймворка Laravel необходимо уставноить Composer (http://getcomposer.org/). Для этого откройте командную строку и выполните следующую команду: 
+`curl -sS https://getcomposer.org/installer | php`
+Если у вас не установлен curl, тогда выполните следующую команду:
+`php -r "readfile('https://getcomposer.org/installer');" | php`
 
-1) клонируем проект с репозитория - git clone <адрес на гитхабе>
-2) Переходим в каталог проекта.
-3) устанавливаем зависимости - php composer.phar install
-4) создаем базу данных. Имя БД можно можно узнать из файла app/config/database.php [mysql.database];
-5) Не обязательно! В корне проекта создаем файл .htaccess (если он не существует). Вносим в него следующий текст:
+## 2. Настройка веб-сервера
+В настройках вашего веб-сервера обязательно включите модуль переадресации. Например, для веб-сервера Apache необходимо включить модуль mod_rewrite. Для этого необходимо раскоментировать модуль в httpd.conf или на linux серверах выполнить команду:
+`a2enmode mod_rewrite`
 
-AddDefaultCharset utf-8
-Options +FollowSymLinks
-Options -Indexes
+# 3. Установка и настройка проекта
 
-php_value upload_max_filesize 20M
-php_value post_max_size 20M
-php_value max_execution_time 500
-php_value max_input_time 500
+1. Клонируем проект с репозитория github 
+`git clone <адрес на гитхабе>`
+2. Переходим в каталог проекта
+`cd path/to/folder`
+3. Устанавливаем неоьходимые зависимости - 
+`php composer.phar install`
+4. Создаем базу данных. Имя БД можно можно узнать из файла app/config/database.php [mysql.database];
+5. Не обязательно! В корне проекта создаем файл .htaccess, если он не существует. Вносим в него следующий текст:
+`AddDefaultCharset utf-8`
+`Options +FollowSymLinks`
+`Options -Indexes`
+``
+`php_value upload_max_filesize 20M`
+`php_value post_max_size 20M`
+`php_value max_execution_time 500`
+`php_value max_input_time 500`
+``
+`<IfModule mod_rewrite.c>`
+`    RewriteEngine on`
+`	RewriteRule (.*) /public/$1 [L]`
+`</IfModule>`
 
-<IfModule mod_rewrite.c>
-    RewriteEngine on
-	RewriteRule (.*) /public/$1 [L]
-</IfModule>
+6. Заполняем базу данных информацией и создаем нужную структуру таблиц: 
+`php artisan migrate --seed`
+7. Логин и пароль для входа в панель управления можно узнать из файла `app/database/seeds/UserTableSeeder.php`
+`'email'=>'admin@grapheme-cms.ru'`
+`'password'=>Hash::make('grapheme1234')`
+8. Открыть проект в браузере по пути, в который вы установили проект.
+Доступ к панели управления осуществялется по ссылке `http://path/login`
 
-6) Миграции и заполнения таблиц БД: php artisan migrate --seed
-7) Логины и пароли можно узнать из файла app/database/seeds/UserTableSeeder.php
-
-    'email'=>'admin@grapheme-cms.ru'
-    'password'=>Hash::make('grapheme1234')
-
-    Логин: admin@grapheme-cms.ru
-    Пароль: grapheme1234
-
-8) Ввести URL-адрес в браузере
-
-Дополнительно:
+## Дополнительно
 Настройка среды окружения для локальной работы
-1) Открыть файл bootstrap/start.php
-2) Найти запись и добавить информацию о новой среде разработки
-
+1. Открыть файл bootstrap/start.php
+2. Найти запись и добавить информацию о новой среде разработки
 Способ 1-й: использовать значения по умолчанию см. файлы из app/config/local/
-
 $env = $app->detectEnvironment(array(
     ....
     'local' => array('ИМЯ КОМПЬЮТЕРА1','ИМЯ КОМПЬЮТЕРА2'),
     ....
 ));
-
 Способ 2-й: создать независимую среду
-
 $env = $app->detectEnvironment(array(
     ....
     'my_name' => array('ИМЯ МОЕГО КОМПЬЮТЕРА'),
     ....
 ));
-
-создать каталог app/config/my_name, скопировать нужные файлы конфигурации. Можно воспользоваться из каталога app/config/local/ внеся нужные изменения
+создать каталог my_name, скопировать нужные файлы конфигурации. Можно воспользоваться из каталога app/config/local/ внеся нужные изменения
 http://laravel.com/docs/configuration#environment-configuration
