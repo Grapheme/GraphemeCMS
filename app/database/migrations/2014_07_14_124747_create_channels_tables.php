@@ -11,6 +11,7 @@ class CreateChannelsTables extends Migration {
             Schema::create('channel_category', function(Blueprint $table) {
                 $table->increments('id');
                 $table->string('title', 128)->nullable();
+                $table->string('slug', 128)->nullable();
                 $table->text('desc')->nullable();
                 $table->timestamps();
             });
