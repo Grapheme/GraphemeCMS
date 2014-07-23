@@ -39,7 +39,7 @@
 
 `Options -Indexes`
 
-``
+` `
 
 `php_value upload_max_filesize 20M`
 
@@ -49,7 +49,7 @@
 
 `php_value max_input_time 500`
 
-``
+` `
 
 `<IfModule mod_rewrite.c>`
 
