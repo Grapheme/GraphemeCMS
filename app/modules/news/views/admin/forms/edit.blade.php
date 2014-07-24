@@ -1,25 +1,24 @@
 {{ Form::model($news, array('url'=>link::auth('news/update/'.$news->id),'class'=>'smart-form','id'=>'news-form','role'=>'form','method'=>'post')) }}
-
-
     <div class="well">
         <header>Для редактирования новости заполните форму:</header>
         <fieldset>
             <section class="col col-6">
-                <label class="label">
-                    Идентификатор новости
-                    <div class="note">Может содержать <strong>только</strong> английские буквы в нижнем регистре, цифры, знаки подчеркивания и тире</div>
-                </label>
+                <label class="label">Идентификатор новости</label>
                 <label class="input col-11"> <i class="icon-append fa fa-list-alt"></i>
                     {{ Form::text('slug', $news->slug) }}
                 </label>
+                <div class="note">Может содержать <strong>только</strong> английские буквы в нижнем регистре, цифры, знаки подчеркивания и тире</div>
             </section>
-            @if(Allow::valid_access('templates'))
-            <section class="col col-6">
-                <label class="label">
-                    Шаблон новости:
-                    <div class="note">Если обычная новость - то выбирайте news.</div>
+            <section class="col col-3">
+                <label class="label">Дата публикации:</label>
+                <label class="input col-3">
+                    <input type="text" name="published_at" value="{{ date("d.m.Y", strtotime($news->published_at)) }}" class="datepicker" />
                 </label>
-                <label class="select col-11">
+            </section>
+            @if(Allow::module('templates'))
+            <section>
+                <label class="label">Шаблон новости:</label>
+                <label class="select col-5">
                     @foreach($templates as $template)
                         <?php $temps[$template->name] = $template->name;?>
                     @endforeach
@@ -27,16 +26,8 @@
                 </label>
             </section>
             @endif
-            <section class="col col-6">
-                <label class="label">Дата публикации:</label>
-                <label class="select col-5">
-                    <input type="text" name="published_at" value="<?=date("d.m.Y", strtotime($news->published_at))?>" class="datepicker" />
-                </label>
-            </section>
         </fieldset>
     </div>
-
-
     <!-- Tabs -->
     <ul class="nav nav-tabs margin-top-10">
     @foreach ($locales as $l => $locale)
@@ -45,14 +36,11 @@
         </li>
     @endforeach
     </ul>
-
-
     <!-- Fields -->
 	<div class="row margin-top-10">
         <div class="tab-content">
-        @foreach ($locales as $l => $locale)
+            @foreach ($locales as $l => $locale)
             <div class="tab-pane{{ $l === 0 ? ' active' : '' }}" id="lang_{{ $locale }}">
-
                 <!-- Form -->
                 <section class="col col-6">
                     <div class="well">
@@ -61,19 +49,27 @@
                             <section>
                                 <label class="label">Название</label>
                                 <label class="input"> <i class="icon-append fa fa-list-alt"></i>
-                                    {{ Form::text('title['.$locale.']', @$news_meta[$locale]->title) }}
+                                    {{ Form::text('title['.$locale.']', $news->meta->first()->title) }}
                                 </label>
                             </section>
+                            @if (Allow::module('galleries'))
+                            <section>
+                                <label class="label">Изображение</label>
+                                <label class="input">
+                                    {{ ExtForm::image('image',@$news->images) }}
+                                </label>
+                            </section>
+                            @endif
                             <section>
                                 <label class="label">Анонс</label>
-                                <label class="input">
-                                    {{ Form::textarea('preview['.$locale.']', @$news_meta[$locale]->preview, array('class'=>'redactor redactor_150')) }}
+                                <label class="textarea">
+                                    {{ Form::textarea('preview['.$locale.']', $news->meta->first()->preview, array('class'=>'redactor redactor_150')) }}
                                 </label>
                             </section>
                             <section>
                                 <label class="label">Содержание</label>
                                 <label class="textarea">
-                                    {{ Form::textarea('content['.$locale.']', @$news_meta[$locale]->content, array('class'=>'redactor redactor_450')) }}
+                                    {{ Form::textarea('content['.$locale.']', $news->meta->first()->content, array('class'=>'redactor redactor_450')) }}
                                 </label>
                             </section>
                         </fieldset>
@@ -87,21 +83,17 @@
         		</section>
             	@endif
             	<!-- /Form -->
-
             </div>
         @endforeach
         </div>
    	</div>
-
 	<div style="float:none; clear:both;"></div>
-
     @if(Allow::enabled_module('galleries') && 0)
     <section class="col-12">
 		@include('modules.galleries.abstract')
 		@include('modules.galleries.uploaded', array('gall' => $gall))
 	</section>
     @endif
-	
     <section class="col-6">
         <footer>
         	<a class="btn btn-default no-margin regular-10 uppercase pull-left btn-spinner" href="{{URL::previous()}}">
@@ -112,6 +104,4 @@
         	</button>
         </footer>
     </section>
-
-
 {{ Form::close() }}

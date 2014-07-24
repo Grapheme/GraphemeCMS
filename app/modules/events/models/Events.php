@@ -1,16 +1,16 @@
 <?php
 
-class Reviews extends BaseModel {
+class Events extends BaseModel {
 
     protected $guarded = array();
 
-    protected $table = 'reviews';
+    protected $table = 'events';
 
-    public static $order_by = "reviews.published_at DESC,reviews.id DESC";
+    public static $order_by = "events.published_at DESC,events.id DESC";
 
     public static $rules = array(
         'slug' => 'required',
-        'name' => 'required'
+        'title' => 'required'
     );
 
     public function photo() {
@@ -23,6 +23,6 @@ class Reviews extends BaseModel {
     }
 
     public  function meta(){
-        return $this->hasMany('ReviewsMeta','review_id');
+        return $this->hasMany('EventsMeta','event_id');
     }
 }

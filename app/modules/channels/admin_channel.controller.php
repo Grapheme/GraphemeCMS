@@ -166,7 +166,7 @@ class AdminChannelController extends BaseController {
         foreach ($temp as $tmp) {
             $categories[$tmp->id] = $tmp->title;
         }
-        $templates = $this->templates();
+        $templates = $this->templates(__DIR__);
 		return View::make($this->module['tpl'].'create', compact('categories', 'templates', 'cat'));
 	}
 
@@ -225,7 +225,7 @@ class AdminChannelController extends BaseController {
         foreach ($temp as $tmp) {
             $categories[$tmp->id] = $tmp->title;
         }
-        $templates = $this->templates();
+        $templates = $this->templates(__DIR__);
 		return View::make($this->module['tpl'].'edit', compact('channel', 'templates', 'categories'));
 	}
 
@@ -306,21 +306,4 @@ class AdminChannelController extends BaseController {
 		$json_request['status'] = TRUE;
 		return Response::json($json_request, 200);
 	}
-
-
-    public function templates() {
-        #Helper::dd(__DIR__."/views");
-        $templates = array();
-        $temp = glob(__DIR__."/views/*");
-        #Helper::dd($temp);
-        foreach ($temp as $t => $tmp) {
-            if (is_dir($tmp))
-                continue;
-            $name = basename($tmp);
-            $name = str_replace(".blade.php", "", $name);
-            $templates[$name] = $name;
-        }
-        #Helper::dd($templates);
-        return $templates;
-    }
 }

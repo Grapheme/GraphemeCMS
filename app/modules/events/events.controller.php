@@ -1,11 +1,11 @@
 <?php
 
-class ReviewsController extends \BaseController {
+class EventsController extends \BaseController {
 
-    public static $name = 'reviews_public';
-    public static $group = 'reviews';
+    public static $name = 'events_public';
+    public static $group = 'events';
 
-    public static $prefix_url = FALSE;
+    public static $prefix_url = 'events';
 
     public static function returnRoutes($prefix = null) {
 
@@ -13,12 +13,12 @@ class ReviewsController extends \BaseController {
             if (is_array(Config::get('app.locales')) && count(Config::get('app.locales'))) {
                 foreach(Config::get('app.locales') as $locale) {
                     Route::group(array('before' => 'i18n_url', 'prefix' => $locale), function(){
-                        Route::get('/'.self::$prefix_url.'/{url}', array('as' => 'reviews_full', 'uses' => __CLASS__.'@showFullByUrl'));
+                        Route::get('/'.self::$prefix_url.'/{url}', array('as' => 'events_full', 'uses' => __CLASS__.'@showFullByUrl'));
                     });
                 }
             }
             Route::group(array('before' => 'i18n_url'), function(){
-                Route::get('/'.self::$prefix_url.'/{url}', array('as' => 'reviews_full', 'uses' => __CLASS__.'@showFullByUrl'));
+                Route::get('/'.self::$prefix_url.'/{url}', array('as' => 'events_full', 'uses' => __CLASS__.'@showFullByUrl'));
             });
         else:
             return NULL;
@@ -30,15 +30,15 @@ class ReviewsController extends \BaseController {
 
         $tpl = static::returnTpl();
 
-        shortcode::add("reviews",
+        shortcode::add("events",
 
             function($params = null) use ($tpl) {
                 #print_r($params); die;
                 ## Gfhfvtnhs по-умолчанию
                 $default = array(
-                    'tpl' => Config::get('app-default.news_template'),
-                    'limit' => Config::get('app-default.news_count_on_page'),
-                    'order' => Helper::stringToArray(I18nNews::$order_by),
+                    'tpl' => Config::get('app-default.events_template'),
+                    'limit' => Config::get('app-default.events_count_on_page'),
+                    'order' => Helper::stringToArray(Event::$order_by),
                     'pagination' => 1,
                 );
                 ## Применяем переданные настройки
@@ -47,14 +47,14 @@ class ReviewsController extends \BaseController {
 
                 #if(Allow::enabled_module('i18n_news')):
                 ## Получаем новости, делаем LEFT JOIN с news_meta, с проверкой языка и тайтла
-                $selected_news = I18nNews::where('i18n_news.publication', 1)
-                    ->leftJoin('i18n_news_meta', 'i18n_news_meta.news_id', '=', 'i18n_news.id')
-                    ->where('i18n_news_meta.language', Config::get('app.locale'))
-                    ->where('i18n_news_meta.title', '!=', '')
-                    ->select('*', 'i18n_news.id AS original_id', 'i18n_news.published_at AS created_at')
-                    ->orderBy('i18n_news.published_at', 'desc');
+                $selected_events = Event::where('events.publication', 1)
+                    ->leftJoin('events_meta', 'events_meta.event_id', '=', 'events.id')
+                    ->where('events_meta.language', Config::get('app.locale'))
+                    ->where('events_meta.title', '!=', '')
+                    ->select('*', 'events.id AS original_id', 'events.published_at AS created_at')
+                    ->orderBy('events.published_at', 'desc');
 
-                #$selected_news = $selected_news->where('i18n_news_meta.wtitle', '!=', '');
+                #$selected_news = $selected_news->where('events_meta.wtitle', '!=', '');
 
                 ## Получаем новости с учетом пагинации
                 #echo $selected_news->toSql(); die;

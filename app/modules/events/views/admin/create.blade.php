@@ -1,12 +1,18 @@
 @extends('templates.'.AuthAccount::getStartPage())
+
+
 @section('style')
-{{ HTML::style('css/redactor.css') }}
+<link rel="stylesheet" href="{{ link::path('css/redactor.css') }}" />
 @stop
+
+
 @section('content')
-	@include($module_tpl.'forms.create')
+@include($module_tpl.'forms.create')
 @stop
+
+
 @section('scripts')
-{{ HTML::script('js/modules/news.js') }}
+{{ HTML::script('js/modules/events.js') }}
 {{ HTML::script('js/vendor/jquery.ui.datepicker-ru.js') }}
 <script type="text/javascript">
     if(typeof pageSetUp === 'function'){pageSetUp();}
@@ -17,6 +23,6 @@
     }
 </script>
 {{ HTML::script('js/modules/gallery.js') }}
-{{ HTML::script('js/vendor/redactor.min.js') }}
-{{ HTML::script('js/system/redactor-config.js') }}
+<script src="{{ link::path('js/vendor/redactor.min.js') }}"></script>
+<script src="{{ link::path('js/system/redactor-config.js') }}"></script>
 @stop

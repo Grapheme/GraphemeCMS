@@ -13,4 +13,16 @@ class I18nNews extends BaseModel {
 		#'seo_url' => 'alpha_dash',
 	);
 
+    public function photo() {
+
+        return $this->hasOne('Photo','id','image_id');
+    }
+
+    public  function images(){
+        return $this->belongsTo('Photo','image_id');
+    }
+
+    public  function meta(){
+        return $this->hasMany('I18nNewsMeta','news_id');
+    }
 }

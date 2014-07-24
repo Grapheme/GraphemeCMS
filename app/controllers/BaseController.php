@@ -80,4 +80,18 @@ class BaseController extends Controller {
         endif;
         return $result;
     }
+
+    public function templates($path = '') {
+
+        $templates = array();
+        $temp = glob($path."/views/*");
+        foreach ($temp as $t => $tmp) {
+            if (is_dir($tmp))
+                continue;
+            $name = basename($tmp);
+            $name = str_replace(".blade.php", "", $name);
+            $templates[] = $name;
+        }
+        return $templates;
+    }
 }

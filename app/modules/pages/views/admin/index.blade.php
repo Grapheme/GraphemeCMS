@@ -36,7 +36,7 @@
 				@foreach($pages as $page)
 					<tr>
 						<td>{{ $page->metas->first()->name }}</td>
-						<td class="wigth-250 text-center">
+						<td class="width-350 text-center">
 						@if($page->start_page == 1)
 							<a href="{{ link::to($page->seo_url) }}" target="_blank">На главную</a>
 						@else
@@ -44,7 +44,7 @@
 						@endif
 						</td>
 						@if(Allow::action('pages','publication') && 0)
-						<td class="wigth-100">
+						<td class="width-100">
 							<div class="smart-form">
 								<label class="toggle pull-left">
 									<input type="checkbox" name="publication" checked="{{ $page->publication ? 'checked' : '' }}" value="{{ $page->publication }}">
@@ -53,7 +53,7 @@
 							</div>
 						</td>
 						@endif
-						<td class="wigth-250" nowrap="nowrap">
+						<td class="width-350" nowrap="nowrap">
 						@if(Allow::action('pages','edit'))
 							<a class="btn btn-default pull-left margin-right-10" href="{{ link::auth('pages/edit/'.$page->id) }}">
 								Редактировать

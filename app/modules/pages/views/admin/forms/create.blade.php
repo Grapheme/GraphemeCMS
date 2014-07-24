@@ -26,6 +26,7 @@
                 <label class="label">Шаблон страницы:</label>
                 <label class="select col-5">
                     @foreach($templates as $template)
+                        <?php #$temps[$template->name] = $template->name;?>
                         <?php $temps[$template] = $template;?>
                     @endforeach
                     {{ Form::select('template', $temps,'default', array('class'=>'template-change','autocomplete'=>'off')) }} <i></i>
@@ -74,7 +75,7 @@
         					<section>
         						<label class="label">Содержание</label>
         						<label class="textarea">
-        							{{ Form::textarea('content['.$locale.']','',array('class'=>'redactor redactor_450')) }}
+        							{{ Form::textarea('content['.$locale.']','',array('class'=>'redactor-no-filter redactor_450')) }}
         						</label>
         					</section>
         				</fieldset>

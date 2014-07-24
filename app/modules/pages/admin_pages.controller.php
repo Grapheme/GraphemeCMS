@@ -74,20 +74,14 @@ class AdminPagesController extends BaseController {
 	public function getIndex(){
 
         Allow::permission($this->module['name'], 'view');
-
-		#$pages = $this->page->all();
-//		$pages = $this->page->orderBy('start_page', 'DESC')->get();
         $pages = $this->page->orderBy('start_page', 'DESC')->with(array('metas'=>function($query){$query->where('language',Config::get('app.locale'));}))->get();
-
-		#return View::make('modules.pages.index',compact('pages'));
 		return View::make($this->module['tpl'].'index',array('pages' => $pages, 'locales' => $this->locales));
 	}
 
 	public function getCreate(){
 
 		$this->moduleActionPermission('pages','create');
-		#return View::make($this->tpl.'create',array('templates'=>Template::all(),'languages'=>Language::all(), 'locales' => $this->locales));
-		return View::make($this->module['tpl'].'create',array('templates'=>$this->templates(), 'locales' => $this->locales));
+		return View::make($this->module['tpl'].'create',array('templates'=>$this->templates(__DIR__), 'locales' => $this->locales));
 	}
 
 	public function postStore(){
@@ -96,11 +90,6 @@ class AdminPagesController extends BaseController {
 		$json_request = array('status'=>FALSE,'responseText'=>'','responseErrorText'=>'','redirect'=>FALSE);
 		if(Request::ajax()):
 			$validator = Validator::make(Input::all(), I18nPage::$rules);
-
-            #$json_request['responseText'] = "<pre>" . print_r($_POST, 1) . "</pre>";
-            #$json_request['responseText'] = self::savePageModel();
-			#return Response::json($json_request,200);
-
 			if($validator->passes()):
 				self::savePageModel();
 				$json_request['responseText'] = 'Страница создана';
@@ -133,8 +122,7 @@ class AdminPagesController extends BaseController {
         }
         #print_r($page_meta);
 
-		#return View::make($this->tpl.'edit',array('page'=>$page, 'page_meta'=>$page_meta, 'templates'=>Template::all(),'languages'=>Language::all(), 'locales' => $this->locales));
-		return View::make($this->module['tpl'].'edit',array('page'=>$page, 'page_meta'=>$page_meta, 'templates'=>$this->templates(), 'locales' => $this->locales));
+		return View::make($this->module['tpl'].'edit',array('page'=>$page, 'page_meta'=>$page_meta, 'templates'=>$this->templates(__DIR__), 'locales' => $this->locales));
 
 	}
 
@@ -286,7 +274,7 @@ class AdminPagesController extends BaseController {
     		else:
     			$page_meta->seo_url = $this->stringTranslite(Input::get('name.' . $locale));
     			$page_meta->seo_title = Input::get('name.' . $locale);
-    			$page_meta->seo_description = $page->seo_keywords = $page->seo_h1 = '';
+    			$page_meta->seo_description = $page_meta->seo_keywords = $page_meta->seo_h1 = '';
     		endif;
 
     		## Дебаг перед сохранением
@@ -299,19 +287,4 @@ class AdminPagesController extends BaseController {
 		return $page->id;
 	}
 
-    public function templates() {
-        #Helper::dd(__DIR__."/views");
-        $templates = array();
-        $temp = glob(__DIR__."/views/*");
-        #Helper::dd($temp);
-        foreach ($temp as $t => $tmp) {
-            if (is_dir($tmp))
-                continue;
-            $name = basename($tmp);
-            $name = str_replace(".blade.php", "", $name);
-            $templates[] = $name;
-        }
-        #Helper::dd($templates);
-        return $templates;
-    }
 }

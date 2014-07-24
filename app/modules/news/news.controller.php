@@ -5,36 +5,25 @@ class NewsController extends BaseController {
     public static $name = 'news_public';
     public static $group = 'news';
 
-    /****************************************************************************/
-    /**
-     * @author Alexander Zelensky
-     * @todo Возможно, в будущем здесь нужно будет добавить проверку параметра, использовать ли вообще мультиязычность по сегментам урла, или нет. Например, удобно будет отключить мультиязычность по сегментам при использовании разных доменных имен для каждой языковой версии.
-     */
-    ## Routing rules of module
-    public static function returnRoutes($prefix = null) {
-        
-        ## УРЛЫ С ЯЗЫКОВЫМИ ПРЕФИКСАМИ ДОЛЖНЫ ИДТИ ПЕРЕД ОБЫЧНЫМИ!
-        ## Если в конфиге прописано несколько языковых версий...
-        if (is_array(Config::get('app.locales')) && count(Config::get('app.locales'))) {
-            ## Для каждого из языков...
-            foreach(Config::get('app.locales') as $locale) {
-            	## ...генерим роуты с префиксом (первый сегмент), который будет указывать на текущую локаль.
-            	## Также указываем before-фильтр i18n_url, для выставления текущей локали.
-                Route::group(array('before' => 'i18n_url', 'prefix' => $locale), function(){
-                    Route::get('/news/{url}', array('as' => 'news_full', 'uses' => __CLASS__.'@showFullByUrl')); ## I18n News
-                });
-            }
-        }
+    public static $prefix_url = 'news';
 
-        ## Генерим роуты без префикса, и назначаем before-фильтр i18n_url.
-        ## Это позволяет нам делать редирект на урл с префиксом только для этих роутов, не затрагивая, например, /admin и /login
-        Route::group(array('before' => 'i18n_url'), function(){
-            Route::get('/news/{url}', array('as' => 'news_full', 'uses' => __CLASS__.'@showFullByUrl'
-            	#function($url) {
-            	#	return $this->showFullByUrl($url);
-            	#}
-            )); ## I18n News
-        });
+    public static function returnRoutes($prefix = null) {
+
+        if (self::$prefix_url !== FALSE):
+            if (is_array(Config::get('app.locales')) && count(Config::get('app.locales'))) {
+                foreach(Config::get('app.locales') as $locale) {
+                    Route::group(array('before' => 'i18n_url', 'prefix' => $locale), function(){
+                        Route::get('/'.self::$prefix_url.'/{url}', array('as' => 'reviews_full', 'uses' => __CLASS__.'@showFullByUrl'));
+                    });
+                }
+            }
+            Route::group(array('before' => 'i18n_url'), function(){
+                Route::get('/'.self::$prefix_url.'/{url}', array('as' => 'reviews_full', 'uses' => __CLASS__.'@showFullByUrl'));
+            });
+        else:
+            return NULL;
+        endif;
+
     }
     
     ## Shortcodes of module

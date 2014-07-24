@@ -1,28 +1,28 @@
-{{ Form::open(array('url'=>link::auth('reviews/store'),'role'=>'form','class'=>'smart-form','id'=>'review-form','method'=>'post')) }}
+{{ Form::model($event,array('url'=>link::auth('events/update/'.$event->id),'class'=>'smart-form','id'=>'event-form','role'=>'form','method'=>'post')) }}
     <div class="well">
-        <header>Для создания отзыва заполните форму:</header>
+        <header>Для редактирования события заполните форму:</header>
         <fieldset>
             <section class="col col-6">
-                <label class="label">Идентификатор отзыва</label>
+                <label class="label">Идентификатор события</label>
                 <label class="input col-11"> <i class="icon-append fa fa-list-alt"></i>
-                    {{ Form::text('slug','') }}
+                    {{ Form::text('slug', $event->slug) }}
                 </label>
                 <div class="note">Может содержать <strong>только</strong> английские буквы в нижнем регистре, цифры, знаки подчеркивания и тире</div>
             </section>
             <section class="col col-3">
                 <label class="label">Дата публикации:</label>
                 <label class="input col-3">
-                    <input type="text" name="published_at" value="<?=date('d.m.Y')?>" class="datepicker" />
+                    <input type="text" name="published_at" value="{{ date("d.m.Y", strtotime($event->published_at)) }}" class="datepicker" />
                 </label>
             </section>
             @if(Allow::module('templates'))
             <section>
-                <label class="label">Шаблон отзыва:</label>
+                <label class="label">Шаблон события</label>
                 <label class="select col-5">
                     @foreach($templates as $template)
-                    <?php $temps[$template->name] = $template->name;?>
+                        <?php $temps[$template->name] = $template->name;?>
                     @endforeach
-                    {{ Form::select('template', $temps, 'reviews', array('class'=>'template-change','autocomplete'=>'off')) }} <i></i>
+                    {{ Form::select('template', $temps, $event->template, array('class'=>'template-change','autocomplete'=>'off')) }} <i></i>
                 </label>
             </section>
             @endif
@@ -41,7 +41,6 @@
         <div class="tab-content">
             @foreach ($locales as $l => $locale)
             <div class="tab-pane{{ $l === 0 ? ' active' : '' }}" id="lang_{{ $locale }}">
-
                 <!-- Form -->
                 <section class="col col-6">
                     <div class="well">
@@ -50,42 +49,36 @@
                             <section>
                                 <label class="label">Имя отправителя</label>
                                 <label class="input"> <i class="icon-append fa fa-list-alt"></i>
-                                    {{ Form::text('name['.$locale.']','') }}
-                                </label>
-                            </section>
-                            <section>
-                                <label class="label">Должность отправителя</label>
-                                <label class="input"> <i class="icon-append fa fa-list-alt"></i>
-                                    {{ Form::text('position['.$locale.']','') }}
+                                    {{ Form::text('title['.$locale.']',$event->meta->first()->title) }}
                                 </label>
                             </section>
                             @if (Allow::module('galleries'))
                             <section>
                                 <label class="label">Изображение</label>
                                 <label class="input">
-                                    {{ ExtForm::image('image', '') }}
+                                    {{ ExtForm::image('image',@$event->images) }}
                                 </label>
                             </section>
                             @endif
                             <section>
                                 <label class="label">Анонс</label>
                                 <label class="textarea">
-                                    {{ Form::textarea('preview['.$locale.']','',array('class'=>'redactor redactor_150')) }}
+                                    {{ Form::textarea('preview['.$locale.']',$event->meta->first()->preview,array('class'=>'redactor redactor_150')) }}
                                 </label>
                             </section>
                             <section>
                                 <label class="label">Содержание</label>
                                 <label class="textarea">
-                                    {{ Form::textarea('content['.$locale.']','',array('class'=>'redactor redactor_450')) }}
+                                    {{ Form::textarea('content['.$locale.']', $event->meta->first()->content, array('class'=>'redactor redactor_450')) }}
                                 </label>
                             </section>
                         </fieldset>
                     </div>
                 </section>
-                @if(Allow::enabled_module('seo'))
+                 @if(Allow::enabled_module('seo'))
                 <section class="col col-6">
                     <div class="well">
-                        @include('modules.seo.reviews')
+                        @include('modules.seo.events')
                     </div>
                 </section>
                 @endif
@@ -97,7 +90,7 @@
     @if(Allow::enabled_module('galleries') && 0)
     <section class="col-12">
         @include('modules.galleries.abstract')
-        @include('modules.galleries.uploaded', array('gallery' => $gall))
+        @include('modules.galleries.uploaded', array('gall' => $gall))
     </section>
     @endif
     <section class="col-6">
@@ -106,7 +99,7 @@
                 <i class="fa fa-arrow-left hidden"></i> <span class="btn-response-text">Назад</span>
             </a>
             <button type="submit" autocomplete="off" class="btn btn-success no-margin regular-10 uppercase btn-form-submit">
-                <i class="fa fa-spinner fa-spin hidden"></i> <span class="btn-response-text">Создать</span>
+                <i class="fa fa-spinner fa-spin hidden"></i> <span class="btn-response-text">Сохранить</span>
             </button>
         </footer>
     </section>

@@ -13,6 +13,7 @@
 
 @section('scripts')
 {{ HTML::script('js/modules/reviews.js') }}
+{{ HTML::script('js/vendor/jquery.ui.datepicker-ru.js') }}
 <script type="text/javascript">
     if(typeof pageSetUp === 'function'){pageSetUp();}
     if(typeof runFormValidation === 'function'){

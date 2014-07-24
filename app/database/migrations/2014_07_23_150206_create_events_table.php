@@ -3,13 +3,12 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateReviewsTable extends Migration {
+class CreateEventsTable extends Migration {
 
-    private $table1 = 'reviews';
-    private $table2 = 'reviews_meta';
+    private $table1 = 'events';
+    private $table2 = 'events_meta';
 
-	public function up(){
-
+    public function up(){
         if (!Schema::hasTable($this->table1)) {
             Schema::create($this->table1, function(Blueprint $table) {
                 $table->increments('id');
@@ -21,6 +20,7 @@ class CreateReviewsTable extends Migration {
                 $table->date('published_at');
                 $table->timestamps();
                 $table->index('publication');
+                $table->index('published_at');
             });
             echo(' + ' . $this->table1 . PHP_EOL);
         } else {
@@ -30,10 +30,9 @@ class CreateReviewsTable extends Migration {
         if (!Schema::hasTable($this->table2)) {
             Schema::create($this->table2, function(Blueprint $table) {
                 $table->increments('id');
-                $table->integer('review_id')->default(0)->unsigned()->nullable();
+                $table->integer('event_id')->default(0)->unsigned()->nullable();
                 $table->string('language',10)->nullable();
-                $table->string('name',100)->nullable();
-                $table->string('position',100)->nullable();
+                $table->string('title',100)->nullable();
                 $table->mediumText('preview')->nullable();
                 $table->Text('content')->nullable();
                 $table->string('seo_url',255)->nullable();
@@ -42,7 +41,7 @@ class CreateReviewsTable extends Migration {
                 $table->text('seo_keywords')->nullable();
                 $table->string('seo_h1')->nullable();
                 $table->timestamps();
-                $table->index('review_id');
+                $table->index('event_id');
                 $table->index('language');
                 $table->index('seo_url');
             });
@@ -50,7 +49,8 @@ class CreateReviewsTable extends Migration {
         } else {
             echo('...' . $this->table2 . PHP_EOL);
         }
-	}
+    }
+
 
     public function down(){
         Schema::dropIfExists($this->table1);

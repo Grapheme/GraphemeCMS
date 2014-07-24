@@ -12,9 +12,11 @@ class CreateI18nNewsTable extends Migration {
         if (!Schema::hasTable($this->table1)) {
     		Schema::create($this->table1, function(Blueprint $table) {
     			$table->increments('id');
-                $table->string('slug',64)->nullable();
                 $table->string('template',100)->nullable();
+                $table->string('slug',100)->nullable();
                 $table->boolean('publication')->default(1)->unsigned()->nullable();
+                $table->integer('image_id')->default(0)->unsigned()->nullable();
+                $table->integer('gallery_id')->default(0)->unsigned()->nullable();
     			$table->timestamps();
                 $table->date('published_at');
            		$table->index('publication');

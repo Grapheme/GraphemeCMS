@@ -1,1 +1,0 @@
-@extends($module_gtpl.'news-full')

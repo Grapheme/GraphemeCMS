@@ -3,7 +3,6 @@
  */
  
 $(function(){
-	
 	$(".remove-news").click(function() {
 		var $this = this;
 		$.SmartMessageBox({
@@ -37,51 +36,16 @@ $(function(){
 		});
 		return false;
 	});
-	
-	
-	/*$.fn.ajax_delete = function()
-		{
-			$(this).each(function(){
-
-				$_tr = $(this);
-				$_form = $(this).find('.ajax_delete');
-
-				$_form.on('submit', function(event){
-
-					event.preventDefault();
-
-					$.ajax({
-						url: $_form.attr('action'),
-						data: $_form.serialize(),
-						type: 'post'
-					}).fail(function(data){
-						console.log(data);
-
-					}).done(function(data){
-						$_tr.fadeOut();
-						console.log(data);
-
-					});
-
-				});
-
-			});
-
-		}
-
-		$('.news-item').ajax_delete();*/
-
-	
 });
 
 function runFormValidation() {
 	
 	var news = $("#news-form").validate({
 		rules:{
-			title: {required : true}
+            slug: {required : true}
 		},
 		messages : {
-			title : {required : 'Укажите название новости'}
+            slug : {required : 'Укажите идентификатор новости'}
 		},
 		errorPlacement : function(error, element){error.insertAfter(element.parent());},
 		submitHandler: function(form) {

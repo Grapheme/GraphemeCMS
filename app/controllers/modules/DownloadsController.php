@@ -63,24 +63,22 @@ class DownloadsController extends BaseController {
 			echo json_encode(array());
 			exit;
 		endif;
-        $fullList = array();
+		$fullList[0] = $fileList = array('thumb'=>'','image'=>'','title'=>'Изображение','folder'=>'Миниатюры');
 		if($listDir = scandir($uploadPath)):
 			$index = 0;
 			foreach($listDir as $number => $file):
 				if(is_file($uploadPath.'/'.$file)):
 					$thumbnail = $uploadPath.'/thumbnail/thumb_'.$file;
-					if(file_exists($thumbnail) && is_file($thumbnail) && is_image($thumbnail)):
+					if(file_exists($thumbnail) && is_file($thumbnail)):
 						$fileList['thumb'] = url('uploads/thumbnail/thumb_'.$file);
-                        $fileList['image'] = url('uploads/'.$file);
-                        $fileList['title'] = 'Изображение';
-                        $fileList['folder'] = 'Миниатюры';
-                        $fullList[$index] = $fileList;
-                        $index++;
 					endif;
+					$fileList['image'] = url('uploads/'.$file);
+					$fullList[$index] = $fileList;
+					$index++;
 				endif;
 			endforeach;
 		endif;
-        return json_encode($fullList);
+		echo json_encode($fullList);
 	}
 	
 	public function redactorUploadImage(){
@@ -92,9 +90,9 @@ class DownloadsController extends BaseController {
 				File::makeDirectory($uploadPath.'/thumbnail',0777,TRUE);
 			endif;
 			ImageManipulation::make(Input::file('file')->getRealPath())->resize(100,100)->save($uploadPath.'/thumbnail/thumb_'.$fileName);
-			ImageManipulation::make(Input::file('file')->getRealPath())->save($uploadPath.'/'.$fileName);
+			ImageManipulation::make(Input::file('file')->getRealPath())->resize(600,600)->save($uploadPath.'/'.$fileName);
 			$file = array('filelink'=>url('uploads/'.$fileName));
-			return stripslashes(json_encode($file));
+			echo stripslashes(json_encode($file));
 		else:
 			exit('Нет файла для загрузки!');
 		endif;

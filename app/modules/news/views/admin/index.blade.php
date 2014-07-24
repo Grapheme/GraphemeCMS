@@ -1,6 +1,4 @@
 @extends('templates.'.AuthAccount::getStartPage())
-
-
 @section('content')
 	<div class="row">
 		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -25,6 +23,9 @@
     					@if(Allow::action('news','publication'))
 						<th class="text-center">Публикация</th>
 	    				@endif
+	    				@if(NewsController::$prefix_url !== FALSE)
+                        <th class="col col-sm-3 text-center">URL</th>
+                        @endif
 						<th></th>
 					</tr>
 				</thead>
@@ -32,11 +33,9 @@
 				@foreach($news as $new)
 					<tr>
 						<td class="text-center">{{ date("d.m.Y", strtotime($new->published_at)) }}</a></td>
-						<td>
-						    <a href="{{ link::to('news/'.$new->slug) }}" target="_blank">{{$new->slug}}</a>
-						</td>
+						 <td>{{$new->meta->first()->title}}</td>
 						@if(Allow::action('news','publication'))
-						<td class="wigth-100">
+						<td class="width-100">
 							<div class="smart-form">
 								<label class="toggle pull-left">
 									<input type="checkbox" name="publication" disabled="" checked="" value="1">
@@ -45,14 +44,19 @@
 							</div>
 						</td>
 						@endif
-						<td class="wigth-250">
+						 @if(NewsController::$prefix_url !== FALSE)
+                        <td class="width-350 text-center">
+                            <a href="{{ link::to(NewsController::$prefix_url.'/'.$new->meta->first()->seo_url) }}" target="_blank">{{ $new->meta->first()->seo_url }}</a>
+                        </td>
+                        @endif
+						<td class="width-350">
 						@if(Allow::action('news', 'edit'))
 							<a class="btn btn-default pull-left margin-right-10" href="{{ link::auth('news/edit/'.$new->id) }}">
 								Редактировать
 							</a>
 						@endif
 						@if(Allow::action('news', 'delete'))
-							<form method="POST" action="{{ link::auth('name/destroy/'.$new->id) }}">
+							<form method="POST" action="{{ link::auth('news/destroy/'.$new->id) }}">
 								<button type="button" class="btn btn-default remove-news">
 									Удалить
 								</button>

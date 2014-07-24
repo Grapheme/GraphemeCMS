@@ -1,9 +1,9 @@
-{{ Form::open(array('url'=>link::auth('reviews/store'),'role'=>'form','class'=>'smart-form','id'=>'review-form','method'=>'post')) }}
+{{ Form::open(array('url'=>link::auth('events/store'),'role'=>'form','class'=>'smart-form','id'=>'event-form','method'=>'post')) }}
     <div class="well">
-        <header>Для создания отзыва заполните форму:</header>
+        <header>Для создания события заполните форму:</header>
         <fieldset>
             <section class="col col-6">
-                <label class="label">Идентификатор отзыва</label>
+                <label class="label">Идентификатор события</label>
                 <label class="input col-11"> <i class="icon-append fa fa-list-alt"></i>
                     {{ Form::text('slug','') }}
                 </label>
@@ -12,17 +12,17 @@
             <section class="col col-3">
                 <label class="label">Дата публикации:</label>
                 <label class="input col-3">
-                    <input type="text" name="published_at" value="<?=date('d.m.Y')?>" class="datepicker" />
+                    <input type="text" name="published_at" value="{{ date('d.m.Y') }}" class="datepicker" />
                 </label>
             </section>
             @if(Allow::module('templates'))
             <section>
-                <label class="label">Шаблон отзыва:</label>
+                <label class="label">Шаблон события:</label>
                 <label class="select col-5">
                     @foreach($templates as $template)
-                    <?php $temps[$template->name] = $template->name;?>
+                        <?php $temps[$template->name] = $template->name;?>
                     @endforeach
-                    {{ Form::select('template', $temps, 'reviews', array('class'=>'template-change','autocomplete'=>'off')) }} <i></i>
+                    {{ Form::select('template', $temps, 'events', array('class'=>'template-change','autocomplete'=>'off')) }} <i></i>
                 </label>
             </section>
             @endif
@@ -41,22 +41,15 @@
         <div class="tab-content">
             @foreach ($locales as $l => $locale)
             <div class="tab-pane{{ $l === 0 ? ' active' : '' }}" id="lang_{{ $locale }}">
-
                 <!-- Form -->
                 <section class="col col-6">
                     <div class="well">
                         <header>{{ $locale }}-версия:</header>
                         <fieldset>
                             <section>
-                                <label class="label">Имя отправителя</label>
+                                <label class="label">Название</label>
                                 <label class="input"> <i class="icon-append fa fa-list-alt"></i>
-                                    {{ Form::text('name['.$locale.']','') }}
-                                </label>
-                            </section>
-                            <section>
-                                <label class="label">Должность отправителя</label>
-                                <label class="input"> <i class="icon-append fa fa-list-alt"></i>
-                                    {{ Form::text('position['.$locale.']','') }}
+                                    {{ Form::text('title['.$locale.']','') }}
                                 </label>
                             </section>
                             @if (Allow::module('galleries'))
@@ -85,7 +78,7 @@
                 @if(Allow::enabled_module('seo'))
                 <section class="col col-6">
                     <div class="well">
-                        @include('modules.seo.reviews')
+                        @include('modules.seo.events')
                     </div>
                 </section>
                 @endif
