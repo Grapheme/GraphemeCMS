@@ -68,8 +68,9 @@ class AdminChannelCategoriesController extends BaseController {
 		$json_request = array('status'=>FALSE, 'responseText'=>'', 'responseErrorText'=>'', 'redirect'=>FALSE);
 		
 		$input = array(
+            'slug' => Input::get('slug'),
             'title' => Input::get('title'),
-            'desc' => Input::get('desc'),
+            #'desc' => Input::get('desc'),
         );
 
 		$validation = Validator::make($input, ProductCategory::$rules);
@@ -113,8 +114,12 @@ class AdminChannelCategoriesController extends BaseController {
 			$json_request['responseText'] = 'Запрашиваемая категория не найдена!';
 			return Response::json($json_request, 400);
 		}
-        
-        $input = Input::all();
+
+        $input = array(
+            'slug' => Input::get('slug'),
+            'title' => Input::get('title'),
+            #'desc' => Input::get('desc'),
+        );
         
 		$validation = Validator::make($input, ProductCategory::$rules);
 		if($validation->passes()):

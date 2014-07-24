@@ -39,7 +39,7 @@
     					<td class="text-center" style="white-space:nowrap;">
 
     						@if(Allow::action($module['group'], 'product_view'))
-    							<a class="btn btn-info margin-right-10" style="display:inline-block" href="{{ link::auth('production/products?cat='.$category->id) }}">
+    							<a class="btn btn-info margin-right-10" style="display:inline-block" href="{{ link::auth('channels/channels?cat='.$category->id) }}">
     								Каналы ({{ $category->count_channels() }})
     							</a>
     						@endif
