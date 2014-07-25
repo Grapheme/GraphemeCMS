@@ -66,7 +66,7 @@ class PagesController extends BaseController {
     
     /****************************************************************************/
 
-	public function __construct(I18nNews $news, I18nNewsMeta $news_meta){
+	public function __construct(){
 
         View::share('module_name', self::$name);
 
