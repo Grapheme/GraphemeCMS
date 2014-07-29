@@ -3,3 +3,5 @@ public/uploads
 composer.phar
 composer.lock
 /.htaccess
+/public/uploads/galleries/*.jpg
+/public/uploads/galleries/thumbs/*.jpg

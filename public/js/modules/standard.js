@@ -58,6 +58,10 @@ function runFormValidation() {
 					if(response.redirect !== false){
 						BASIC.RedirectTO(response.redirect);
 					}
+                    if(response.gallery && $(".dropzone[data-name='gallery']").length > 0){
+                        $(".dropzone[data-name='gallery']").attr('data-gallery_id',response.gallery);
+                        $("#gallery-input-id").val(response.gallery);
+                    }
 					showMessage.constructor(response.responseText, '');
 					showMessage.smallSuccess();
 				}else{

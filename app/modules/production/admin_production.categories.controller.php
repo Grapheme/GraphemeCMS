@@ -69,7 +69,7 @@ class AdminProductionCategoriesController extends BaseController {
 		
 		$input = array(
             'title' => Input::get('title'),
-            'desc' => Input::get('desc'),
+            'description' => Input::get('description'),
         );
 
 		$validation = Validator::make($input, ProductCategory::$rules);

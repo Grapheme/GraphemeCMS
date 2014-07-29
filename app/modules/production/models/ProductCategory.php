@@ -8,7 +8,6 @@ class ProductCategory extends BaseModel {
 
 	public static $rules = array(
 		'title' => 'required',
-		#'desc' => 'required',
 	);
 
 	public function count_products(){
@@ -17,6 +16,10 @@ class ProductCategory extends BaseModel {
 
 	public function products(){
 		return Product::where('category_id', $this->id)->orderBy("title", "ASC")->get();
+	}
+
+    public function product(){
+		return $this->hasMany('Product','category_id');
 	}
 
     /*

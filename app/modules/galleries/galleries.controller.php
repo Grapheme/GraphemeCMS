@@ -78,7 +78,7 @@ class GalleriesController extends BaseController {
     
     /****************************************************************************/
 
-	public function __construct(){
+	public function __construct(I18nNews $news, I18nNewsMeta $news_meta){
 
         $this->tpl = static::returnTpl();
         View::share('module_name', self::$name);

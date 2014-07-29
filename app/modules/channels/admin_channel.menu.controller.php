@@ -2,7 +2,7 @@
 
 class AdminChannelMenuController extends BaseController {
 
-    public static $name = 'channels_menu';
+    public static $name = 'channels';
     public static $group = 'channels';
 
     /****************************************************************************/

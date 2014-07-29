@@ -123,9 +123,14 @@ class AdminProductionProductsController extends BaseController {
 
     /****************************************************************************/
 
-	public function __construct(){
+    protected $product;
+    public $locales;
 
+	public function __construct(Product $product){
+
+        $this->product = $product;
 		#$this->beforeFilter('groups');
+        $this->locales = Config::get('app.locales');
 
         $this->module = array(
             'name' => self::$name,
@@ -147,9 +152,7 @@ class AdminProductionProductsController extends BaseController {
         $categories = ProductCategory::all();
 
         $cat = Input::get('cat');
-		$products = new Product;
-        $products = is_numeric($cat) ? $products->where('category_id', $cat)->paginate($limit) : $products->paginate($limit);
-
+        $products = is_numeric($cat) ? $this->product->where('category_id', $cat)->with('meta')->paginate($limit) : $this->product->with('meta')->paginate($limit);
 		return View::make($this->module['tpl'].'index', compact('products', 'categories', 'cat', 'category'));
 	}
 
@@ -158,56 +161,29 @@ class AdminProductionProductsController extends BaseController {
 	public function getCreate(){
 
         Allow::permission($this->module['group'], 'product_create');
-
         $cat = Input::get('cat');
-
         $categories = array('Выберите категорию');
-        $temp = ProductCategory::all();
-        foreach ($temp as $tmp) {
-            $categories[$tmp->id] = $tmp->title;
-        }
-
-		return View::make($this->module['tpl'].'create', compact('categories', 'cat'));
+        foreach (ProductCategory::all() as $category):
+            $categories[$category->id] = $category->title;
+        endforeach;
+        $locales = $this->locales;
+		return View::make($this->module['tpl'].'create', compact('categories', 'cat','locales'));
 	}
 
 	public function postStore(){
 
+        if(!Request::ajax()) return App::abort(404);
         Allow::permission($this->module['group'], 'product_create');
-
-		$json_request = array('status'=>FALSE, 'responseText'=>'', 'responseErrorText'=>'', 'redirect'=>FALSE);
-
-		$input = array(
-            'title' => Input::get('title'),
-            'link' => Input::get('link'),
-            'category_id' => Input::get('category_id'),
-            'short' => Input::get('short'),
-            'desc' => Input::get('desc'),
-        );
-        ################################################
-        ## Process image
-        ################################################
-        if (Allow::action('galleries', 'edit')) {
-            $image_id = ExtForm::process('image', array(
-                'image' => Input::get('image'),
-                'return' => 'id'
-            ));
-            $input['image_id'] = $image_id;
-        }
-        ################################################
-
-		$validation = Validator::make($input, Product::$rules);
+		$json_request = array('status'=>FALSE, 'responseText'=>'', 'responseErrorText'=>'', 'redirect'=>FALSE, 'gallery'=>0);
+		$validation = Validator::make(Input::all(), Product::$rules);
 		if($validation->passes()) {
-
-			Product::create($input);
-			#return link::auth('groups');
-
-			$json_request['responseText'] = "Продукт создан создана";
-			#$json_request['responseText'] = print_r(Input::get('actions'), 1);
+            self::saveProductModel();
+            self::saveProductsMetaModel();
+            $json_request['gallery'] = self::saveProductsGallery();
+			$json_request['responseText'] = "Продукт создан";
 			$json_request['redirect'] = link::auth($this->module['rest']);
 			$json_request['status'] = TRUE;
-
 		} else {
-			#return Response::json($v->messages()->toJson(), 400);
 			$json_request['responseText'] = 'Неверно заполнены поля';
 			$json_request['responseErrorText'] = implode($validation->messages()->all(),'<br />');
 		}
@@ -219,61 +195,30 @@ class AdminProductionProductsController extends BaseController {
 	public function getEdit($id){
 
         Allow::permission($this->module['group'], 'product_edit');
-
-		$product = Product::find($id);
-
+        $product = $this->product->where('id',$id)->with('meta')->with('images')->with(array('gallery'=>function($query) use ($id){
+            $query->where('module',self::$name);
+            $query->where('unit_id',$id);
+        }))->first();
         $categories = array('Выберите категорию');
-        $temp = ProductCategory::all();
-        foreach ($temp as $tmp) {
-            $categories[$tmp->id] = $tmp->title;
-        }
-
-		return View::make($this->module['tpl'].'edit', compact('product', 'categories'));
+        foreach (ProductCategory::all() as $category):
+            $categories[$category->id] = $category->title;
+        endforeach;
+        $locales = $this->locales;
+		return View::make($this->module['tpl'].'edit', compact('product', 'categories','locales'));
 	}
 
 	public function postUpdate($id){
 
+        if(!Request::ajax()) return App::abort(404);
         Allow::permission($this->module['group'], 'product_edit');
-
-		$json_request = array('status'=>FALSE, 'responseText'=>'', 'responseErrorText'=>'', 'redirect'=>FALSE);
-		if(!Request::ajax())
-            return App::abort(404);
-
-		if(!$product = Product::find($id)) {
-			$json_request['responseText'] = 'Запрашиваемый продукт не найден!';
-			return Response::json($json_request, 400);
-		}
-
-        $input = array(
-            'title' => Input::get('title'),
-            'link' => Input::get('link'),
-            'category_id' => Input::get('category_id'),
-            'short' => Input::get('short'),
-            'desc' => Input::get('desc'),
-        );
-        ################################################
-        ## Process image
-        ################################################
-        if (Allow::action('galleries', 'edit')) {
-            $image_id = ExtForm::process('image', array(
-                'image' => Input::get('image'),
-                'return' => 'id'
-            ));
-            $input['image_id'] = $image_id;
-        }
-        ################################################
-
-		$validation = Validator::make($input, Product::$rules);
+		$json_request = array('status'=>FALSE, 'responseText'=>'', 'responseErrorText'=>'', 'redirect'=>FALSE, 'gallery'=>0);
+		$validation = Validator::make(Input::all(), Product::$rules);
 		if($validation->passes()):
-
-			$product->update($input);
-
+            $product = $this->product->find($id);
+            self::saveProductModel($product);
+            self::saveProductsMetaModel();
+            $json_request['gallery'] = self::saveProductsGallery();
 			$json_request['responseText'] = 'Продукт обновлен';
-			#$json_request['responseText'] = print_r($group_id, 1);
-			#$json_request['responseText'] = print_r($group, 1);
-			#$json_request['responseText'] = print_r(Input::get('actions'), 1);
-			#$json_request['responseText'] = print_r($group->actions(), 1);
-			#$json_request['redirect'] = link::auth('groups');
 			$json_request['status'] = TRUE;
 		else:
 			$json_request['responseText'] = 'Неверно заполнены поля';
@@ -287,25 +232,109 @@ class AdminProductionProductsController extends BaseController {
 
 	public function deleteDestroy($id){
 
+        if(!Request::ajax()) return App::abort(404);
         Allow::permission($this->module['group'], 'product_delete');
-
-		if(!Request::ajax())
-            return App::abort(404);
-
-		$json_request = array('status'=>FALSE, 'responseText'=>'');
-
-	    $product = Product::find($id);
-        if($image = $product->images()->first()):
-            if (!empty($image->name) && File::exists(public_path('uploads/galleries/thumbs/'.$image->name))):
-                File::delete(public_path('uploads/galleries/thumbs/'.$image->name));
-                File::delete(public_path('uploads/galleries/'.$image->name));
-                Photo::find($image->id)->delete();
+        $json_request = array('status'=>FALSE, 'responseText'=>'');
+        if(Request::ajax()):
+            $product = $this->product->find($id);
+            if($image = $product->images()->first()):
+                if (!empty($image->name) && File::exists(public_path('uploads/galleries/thumbs/'.$image->name))):
+                    File::delete(public_path('uploads/galleries/thumbs/'.$image->name));
+                    File::delete(public_path('uploads/galleries/'.$image->name));
+                    Photo::find($image->id)->delete();
+                endif;
             endif;
+            $product->meta()->delete();
+            $product->delete();
+            $json_request['responseText'] = 'Продукт удален';
+            $json_request['status'] = TRUE;
+        else:
+            return App::abort(404);
         endif;
-        $product->delete();
-		$json_request['responseText'] = 'Продукт удален';
-		$json_request['status'] = TRUE;
-		return Response::json($json_request, 200);
+        return Response::json($json_request,200);
 	}
 
+    private function saveProductModel($product = NULL){
+
+        if(is_null($product)):
+            $product = $this->product;
+        endif;
+
+        $product->category_id = Input::get('category_id');
+        $product->publication = 1;
+        $product->image_id =  Input::get('image');
+        $product->gallery_id =  Input::get('gallery_id');
+
+        ## Сохраняем в БД
+        $product->save();
+        $product->touch();
+
+        $this->product = $product;
+        return TRUE;
+    }
+
+    private function saveProductsMetaModel(){
+
+        foreach($this->locales as $locale):
+            if (!$productMeta = ProductsMeta::where('product_id',$this->product->id)->where('language',$locale)->first()):
+                $productMeta = new ProductsMeta;
+            endif;
+            $productMeta->product_id = $this->product->id;
+            $productMeta->language = $locale;
+            $productMeta->title = Input::get('title.' . $locale);
+            $productMeta->short_title = Input::get('short_title.' . $locale);
+            $productMeta->price = Input::get('price.' . $locale);
+            $productMeta->preview = Input::get('preview.' . $locale);
+            $productMeta->content = Input::get('content.' . $locale);
+
+            /*
+           $eventMeta->seo_url = Input::get('seo_url.' . $locale);
+           $eventMeta->seo_title = Input::get('seo_title.' . $locale);
+           $eventMeta->seo_description = Input::get('seo_description.' . $locale);
+           $eventMeta->seo_keywords = Input::get('seo_keywords.' . $locale);
+           $eventMeta->seo_h1 = Input::get('seo_h1.' . $locale);
+           */
+
+            if(Allow::enabled_module('seo')):
+                if(is_null(Input::get('seo_url.' . $locale))):
+                    $productMeta->seo_url = '';
+                elseif(Input::get('seo_url.' . $locale) === ''):
+                    $productMeta->seo_url = $this->stringTranslite(Input::get('title.' . $locale));
+                else:
+                    $productMeta->seo_url = $this->stringTranslite(Input::get('seo_url.' . $locale));
+                endif;
+                $productMeta->seo_url = (string)$productMeta->seo_url;
+                if(Input::get('seo_title.' . $locale) == ''):
+                    $productMeta->seo_title = $productMeta->title;
+                else:
+                    $productMeta->seo_title = trim(Input::get('seo_title.' . $locale));
+                endif;
+                $productMeta->seo_description = Input::get('seo_description.' . $locale);
+                $productMeta->seo_keywords = Input::get('seo_keywords.' . $locale);
+                $productMeta->seo_h1 = Input::get('seo_h1.' . $locale);
+            else:
+                $productMeta->seo_url = $this->stringTranslite(Input::get('title.' . $locale));
+                $productMeta->seo_title = Input::get('title.' . $locale);
+                $productMeta->seo_description = $productMeta->seo_keywords = $productMeta->seo_h1 = '';
+            endif;
+
+            $productMeta->save();
+            $productMeta->touch();
+
+        endforeach;
+        return TRUE;
+    }
+
+    private function saveProductsGallery(){
+
+        $gallery_id = FALSE;
+        if(Allow::action('admin_galleries','edit')):
+            $gallery_id = ExtForm::process('gallery', array(
+                'module'  => 'products',
+                'unit_id' => $this->product->id,
+                'gallery' => Input::get('gallery'),
+            ));
+        endif;
+        return $gallery_id;
+    }
 }

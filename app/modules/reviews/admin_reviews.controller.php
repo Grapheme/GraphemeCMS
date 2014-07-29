@@ -107,7 +107,7 @@ class AdminReviewsController extends BaseController {
     public function getEdit($id){
 
         $this->moduleActionPermission('reviews','edit');
-        if(!$review = $this->review->find($id)->with('meta')->with('images')->first()):
+        if(!$review = $this->review->where('id',$id)->with('meta')->with('images')->first()):
             return App::abort(404);
         endif;
         $gall = Rel_mod_gallery::where('module','reviews')->where('unit_id', $id)->first();

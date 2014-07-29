@@ -116,17 +116,42 @@ class PagesController extends BaseController {
         #print_r($page_meta);
         #echo $page->template;
 
-		$content = self::content_render($page_meta->content);
+//        $content = self::content_render($page_meta->content);
+//        return View::make(
+//            $this->tpl.$page->template,
+//            array(
+//                'page_title' => $page_meta->seo_title,
+//                'page_description' => $page_meta->seo_description,
+//                'page_keywords' => $page_meta->seo_keywords,
+//                'page_author' => '',
+//                'page_h1' => $page_meta->seo_h1,
+//                'menu' => I18nPage::getMenu($page->template),
+//                'content' => $content
+//            )
+//        );
+
+        /*
+        *   автор: Харсеев В.А.
+        *  Переопределяю $page изходя из связей с таблицей мета
+        */
+
+        if (!empty($url)):
+            $page = I18nPage::where('slug', $url)->where('publication', 1)->with('metas')->first();
+        else:
+            $page = I18nPage::where('start_page', '1')->where('publication', 1)->with('metas')->first();
+        endif;
+
         return View::make(
 		    $this->tpl.$page->template,
 		    array(
-		        'page_title' => $page_meta->seo_title,
-		        'page_description' => $page_meta->seo_description,
-				'page_keywords' => $page_meta->seo_keywords,
+                'page_name' =>$page->metas->first()->name,
+		        'page_title' => $page->metas->first()->seo_title,
+		        'page_description' => $page->metas->first()->seo_description,
+				'page_keywords' => $page->metas->first()->seo_keywords,
 				'page_author' => '',
-				'page_h1' => $page_meta->seo_h1,
+				'page_h1' => $page->metas->first()->seo_h1,
 				'menu' => I18nPage::getMenu($page->template),
-				'content' => $content
+				'content' => self::content_render($page->metas->first()->content)
 			)
         );
 	}

@@ -5,7 +5,7 @@ class EventsController extends \BaseController {
     public static $name = 'events_public';
     public static $group = 'events';
 
-    public static $prefix_url = 'events';
+    public static $prefix_url = 'event';
 
     public static function returnRoutes($prefix = null) {
 
@@ -95,7 +95,7 @@ class EventsController extends \BaseController {
 
     }
 
-    public function __construct(I18nNews $news, I18nNewsMeta $news_meta){
+    public function __construct(){
 
         View::share('module_name', self::$name);
 

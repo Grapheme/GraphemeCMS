@@ -6,6 +6,7 @@ class ProductionController extends BaseController {
     public static $group = 'production';
     public $template = 'product';
 
+    public static $prefix_url = 'catalog';
     /****************************************************************************/
     /**
      * @author Alexander Zelensky
@@ -22,7 +23,7 @@ class ProductionController extends BaseController {
                 ## ...генерим роуты с префиксом (первый сегмент), который будет указывать на текущую локаль.
                 ## Также указываем before-фильтр i18n_url, для выставления текущей локали.
                 Route::group(array('before' => 'i18n_url', 'prefix' => $locale), function(){
-                    Route::get('/catalog/{url}', array('as' => 'single_product', 'uses' => __CLASS__.'@showProduct')); ## I18n Production
+                    Route::get('/'.self::$prefix_url.'/{url}', array('as' => 'single_product', 'uses' => __CLASS__.'@showProduct')); ## I18n Production
                 });
             }
         }
@@ -30,7 +31,7 @@ class ProductionController extends BaseController {
         ## Генерим роуты без префикса, и назначаем before-фильтр i18n_url.
         ## Это позволяет нам делать редирект на урл с префиксом только для этих роутов, не затрагивая, например, /admin и /login
         Route::group(array('before' => 'i18n_url'), function(){
-            Route::get('/catalog/{url}', array('as' => 'single_product', 'uses' => __CLASS__.'@showProduct'
+            Route::get('/'.self::$prefix_url.'/{url}', array('as' => 'single_product', 'uses' => __CLASS__.'@showProduct'
                 #function($url) {
                 #	return $this->showFullByUrl($url);
                 #}
@@ -64,19 +65,27 @@ class ProductionController extends BaseController {
 
         if (!@$url) $url = Input::get('url');
 
-        if($product = Product::where('link',$url)->with('images')->first()):
-            $product = $product->toArray();
-        else:
+        $products = Product::with(array('meta' => function ($query) use ($url) {
+            $query->where('seo_url', $url);
+        }))->with('images')->get();
+        $product = NULL;
+        foreach ($products as $product_info):
+            if (!is_null($product_info->meta->first()) && $product_info->meta->first()->seo_url == $url):
+                $product = $product_info;
+                break;
+            endif;
+        endforeach;
+        if(is_null($product)):
             return App::abort(404);
         endif;
         return View::make($this->tpl.$this->template,
             array(
                 'product' => $product,
-                'page_title'=>$product['title'],
+                'page_title'=>$product->meta->first()->title,
                 'page_description'=>'',
                 'page_keywords'=>'',
                 'page_author'=>'',
-                'page_h1'=>$product['title']
+                'page_h1'=>$product->meta->first()->title
             )
         );
     }

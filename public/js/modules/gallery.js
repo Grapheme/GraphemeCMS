@@ -21,7 +21,7 @@
 				el, {
                     url: "/admin/galleries/abstractupload",
                     addRemoveLinks : true,
-                    maxFilesize: 5.0,
+                    maxFilesize: 0.5,
                     dictResponseError: 'Error uploading file!'
 				}
 			);
@@ -69,7 +69,7 @@
 				el, {
                     url: "/admin/galleries/singleupload",
                     addRemoveLinks : true,
-                    maxFilesize: 5.0,
+                    maxFilesize: 0.5,
                     dictResponseError: 'Error uploading file!',
                     dictDefaultMessage: 'dictDefaultMessage',
                     uploadMultiple: false,
@@ -157,9 +157,9 @@
         $('.photo-delete-single').click(function(event){
             event.preventDefault();
             var image_id = $(this).attr('data-photo-id');
-            var $photoDiv = $(this).parent();
-            var el = $(this).parents().find('.egg-dropzone-single');
-            var preview = $(this).parents('.photo-preview');
+            var el = $(this).parents('.input');
+            var eldz = $(el).find('.egg-dropzone-single');
+            var preview = $(el).find('.photo-preview');
     		$.SmartMessageBox({
     			title : "Удалить изображение?",
     			content : "",
@@ -171,15 +171,15 @@
                         data: { id: image_id },
                         type: 'post',
                     }).done(function(){
-                        $photoDiv.fadeOut('fast');
-                        //console.log(el);
-                        $(".uploaded_image_" + image_id).empty().remove();
-                        $(el).removeClass('dz-started');
-                        $(el).show();
+                        console.log(el);
+                        $(el).find(".uploaded_image_" + image_id).empty().remove();
+        				$(el).append("<input type='text' name='" + eldz.data("name") + "' class='uploaded_image_false uploaded_image_cap' />");
+
+                        $(eldz).removeClass('dz-started');
+                        $(eldz).show();
                         $(preview).hide();
-                        $(preview).parents().find('.photo-preview-container').hide();
+                        $(preview).parents('.photo-preview-container').hide();
                     }).fail(function(data){
-                        $photoDiv.fadeOut('fast');
                         console.log(data);
                     });           
                     return false;

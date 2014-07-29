@@ -20,6 +20,10 @@ class ChannelCategory extends BaseModel {
 		return Channel::where('category_id', $this->id)->orderBy("title", "ASC")->get();
 	}
 
+    public function channel(){
+        return $this->hasMany('Channel','category_id');
+    }
+
     /*
 	public function group(){
 		return $this->hasOne('Group', 'group_id', 'id');

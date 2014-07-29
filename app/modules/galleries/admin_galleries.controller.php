@@ -73,7 +73,8 @@ class AdminGalleriesController extends BaseController {
                 $unit_id = (int)trim($unit_id);
 
                 ## Perform all actions for adding photos to the gallery & bind gallery to the unit_id of module
-                $class::imagesToUnit($uploaded_images, $module, $unit_id, $gallery_id);
+
+                return $class::imagesToUnit($uploaded_images, $module, $unit_id, $gallery_id);
             }
         );
 
@@ -105,10 +106,17 @@ class AdminGalleriesController extends BaseController {
                     unset($params['tpl']);
                 }
 
-                #echo Form::text($name);
-                #if ( is_numeric($value) ) {
-                #    $value = 0;
-                #}
+                #Helper::dd($value);
+
+                if ( $value === false || $value === null ) {
+                    $val = Form::text($name);
+                    preg_match("~value=['\"]([^'\"]+?)['\"]~is", $val, $matches);
+                    #Helper::d($matches);
+                    $val = (int)@$matches[1];
+                    if ( $val > 0 ) {
+                        $value = Photo::firstOrNew(array('id' => $val));
+                    }
+                }
 
                 $photo = $value;
                 ## return view with form element
@@ -416,11 +424,11 @@ class AdminGalleriesController extends BaseController {
 		}
 
 		#if(@$db_delete && @$file_delete && @$thumb_delete) {
-		if(@$db_delete) {
+		#if(@$db_delete) {
 			return Response::json('success', 200);
-		} else {
-			return Response::json('error', 400);
-		}
+		#} else {
+		#	return Response::json('error', 400);
+		#}
 	}
 
     /****************************************************************************/
@@ -493,9 +501,8 @@ class AdminGalleriesController extends BaseController {
 			return false;
 
 		$gallery_id = self::moveImagesToGallery($images, $gallery_id);
-		self::relModuleUnitGallery($module, (int)$unit_id, $gallery_id);
-
-		return true;
+        self::relModuleUnitGallery($module, (int)$unit_id, $gallery_id);
+		return $gallery_id;
 	}
 
 }

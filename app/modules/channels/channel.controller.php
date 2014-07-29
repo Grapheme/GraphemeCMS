@@ -1,24 +1,34 @@
 <?php
 
-class NewsController extends BaseController {
+class ChannelController extends BaseController {
 
-    public static $name = 'news_public';
-    public static $group = 'news';
+    public static $name = 'channels';
+    public static $group = 'channels';
 
-    public static $prefix_url = 'news';
+    /*
+     *  Если понадобится создавать страницы для разных категорий елементов каналов тогда
+     *  перечислите все префиксы URL для каждой категории $prefix_url = array('prefix_1','prefix_1')
+     * и создайте шаблоны с соответствующими именами в каталогие views данного модуля
+     */
+
+    public static $prefix_url = array('offer'); # array of FALSE;
 
     public static function returnRoutes($prefix = null) {
 
         if (self::$prefix_url !== FALSE):
-            if (is_array(Config::get('app.locales')) && count(Config::get('app.locales'))) {
-                foreach(Config::get('app.locales') as $locale) {
+            if (is_array(Config::get('app.locales')) && count(Config::get('app.locales'))):
+                foreach(Config::get('app.locales') as $locale) :
                     Route::group(array('before' => 'i18n_url', 'prefix' => $locale), function(){
-                        Route::get('/'.self::$prefix_url.'/{url}', array('as' => 'reviews_full', 'uses' => __CLASS__.'@showFullByUrl'));
+                    foreach (self::$prefix_url as $prefix):
+                        Route::get('/'.$prefix.'/{url}', array('as' => 'channel_full', 'uses' => __CLASS__.'@showFullByUrl'));
+                    endforeach;
                     });
-                }
-            }
+                endforeach;
+            endif;
             Route::group(array('before' => 'i18n_url'), function(){
-                Route::get('/'.self::$prefix_url.'/{url}', array('as' => 'reviews_full', 'uses' => __CLASS__.'@showFullByUrl'));
+            foreach (self::$prefix_url as $prefix):
+                Route::get('/'.$prefix.'/{url}', array('as' => 'channel_full', 'uses' => __CLASS__.'@showFullByUrl'));
+            endforeach;
             });
         else:
             return NULL;
@@ -31,7 +41,7 @@ class NewsController extends BaseController {
 
         $tpl = static::returnTpl();
 
-    	shortcode::add("news",
+    	shortcode::add("channel",
         
             function($params = null) use ($tpl) {
                 #print_r($params); die;
@@ -122,58 +132,42 @@ class NewsController extends BaseController {
         View::share('module_gtpl', $this->gtpl);
 	}
     
-    /*
-    |--------------------------------------------------------------------------
-    | Раздел "Новости" - I18N
-    |--------------------------------------------------------------------------
-    */
-    ## Функция для просмотра полной мультиязычной новости
-    public function showFullByUrl($url){
+    ## Функция для просмотра полной мультиязычного элемента канала
+    public function showFullByUrl($url = null){
 
-        if (!@$url)
+        if (is_null($url)):
             $url = Input::get('url');
-
-        if(!Allow::enabled_module('i18n_news'))
+        endif;
+        if(!Allow::enabled_module('channels')):
             return App::abort(404);
+        endif;
 
-        $i18n_news = I18nNews::where('slug', $url)->where('publication', 1)->first();
+        try{
+            $element = ChannelCategory::where('slug', Request::segment(1))->with(array('channel' => function ($query) use ($url) {
+                    $query->where('link', $url);
+                    $query->with('images');
+                }))->first();
 
-        if (!$i18n_news)
+            if(!$element):
+                return App::abort(404);
+            endif;
+            if(View::exists($this->tpl.$element->slug) === FALSE) :
+                throw new Exception('Template not found: '.$this->tpl.$element->slug);
+            endif;
+            if(method_exists('PagesController','content_render')):
+                $element->desc = PagesController::content_render($element->desc);
+            endif;
+            return View::make($this->tpl.$element->slug,
+                array(
+                    'page_title' => $element->title.'. '.$element->channel->first()->title,'page_description' => '','page_keywords' => '','page_author' => '',
+                    'page_h1' => $element->channel->first()->title,
+                    'page_h1' => $element->channel->first()->title,
+                    'menu' => NULL,'element' => $element
+                )
+            );
+        }catch (Exception $e){
             return App::abort(404);
-
-        if(empty($i18n_news->template) || !View::exists($this->tpl.$i18n_news->template)) {
-			#return App::abort(404, 'Отсутствует шаблон: ' . $this->tpl . $i18n_news->template);
-            throw new Exception('Template not found: ' . $this->tpl.$i18n_news->template);
         }
-
-        $i18n_news_meta = I18nNewsMeta::where('news_id', $i18n_news->id)->where('language', Config::get('app.locale'))->first();
-
-        if(!$i18n_news_meta || !$i18n_news_meta->title)
-            return App::abort(404);
-
-		$gall = Rel_mod_gallery::where('module', 'news')->where('unit_id', $i18n_news->id)->first();
-
-        /**
-         * @todo После того, как будет сделано управление модулями (актив/неактив) - поменять условие, активен ли модуль страниц
-         */
-        if ( method_exists('PagesController', 'content_render') ) {
-            $i18n_news_meta->preview = PagesController::content_render($i18n_news_meta->preview);
-            $i18n_news_meta->content = PagesController::content_render($i18n_news_meta->content);
-        }
-
-        return View::make($this->tpl.$i18n_news->template,
-            array(
-            	'new' => $i18n_news,
-                'news'=>$i18n_news_meta,
-                'page_title'=>$i18n_news_meta->seo_title,
-                'page_description'=>$i18n_news_meta->seo_description,
-                'page_keywords'=>$i18n_news_meta->seo_keywords,
-                'page_author'=>'',
-                'page_h1'=>$i18n_news_meta->seo_h1,
-                'menu'=> Page::getMenu('news'),
-                'gall' => $gall
-            )
-        );
 	}
 
 }

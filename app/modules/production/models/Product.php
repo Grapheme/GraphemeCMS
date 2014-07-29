@@ -7,10 +7,7 @@ class Product extends BaseModel {
     #public $timestamps = false;
 
 	public static $rules = array(
-		'title' => 'required',
 		'category_id' => 'required|min:1',
-        'link' => 'required'
-		#'desc' => 'required',
 	);
 
 	public function photo() {
@@ -21,6 +18,15 @@ class Product extends BaseModel {
     public  function images(){
         return $this->belongsTo('Photo','image_id');
     }
+
+    public  function gallery(){
+        return $this->hasMany('Rel_mod_gallery','unit_id');
+    }
+
+    public  function meta(){
+        return $this->hasMany('ProductsMeta','product_id');
+    }
+
     /*
 	public function group(){
 		return $this->hasOne('Group', 'group_id', 'id');

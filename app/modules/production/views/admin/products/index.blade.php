@@ -55,7 +55,8 @@
                         {{--
     					<th class="col-lg-1 text-center">ID</th>
                         --}}
-    					<th class="col-lg-10 text-center" style="white-space:nowrap;">Продукт</th>
+    					<th class="col-lg-5 text-center" style="white-space:nowrap;">Продукт</th>
+    					<th class="col-lg-5 text-center" style="white-space:nowrap;">Цена</th>
     					<th class="col-lg-1 text-center">Действия</th>
     				</tr>
     			</thead>
@@ -66,7 +67,10 @@
     					<td class="text-center">{{ $product->id }}</td>
                         --}}
     					<td>
-                            {{ $product->title }}
+                            {{ $product->meta->first()->title }}
+                        </td>
+                        <td>
+                            {{ $product->meta->first()->price }} руб.
                         </td>
     					<td class="text-center" style="white-space:nowrap;">
 
