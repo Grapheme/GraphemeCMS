@@ -18,4 +18,12 @@ class Channel extends BaseModel {
     public  function images(){
         return $this->belongsTo('Photo','image_id');
     }
+
+    public  function gallery(){
+        return $this->belongsTo('Gallery','gallery_id');
+    }
+
+    public  function galleries(){
+        return $this->hasMany('Rel_mod_gallery','unit_id');
+    }
 }

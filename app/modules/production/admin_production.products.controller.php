@@ -263,7 +263,7 @@ class AdminProductionProductsController extends BaseController {
         $product->category_id = Input::get('category_id');
         $product->publication = 1;
         $product->image_id =  Input::get('image');
-        $product->gallery_id =  Input::get('gallery_id');
+        //$product->gallery_id =  Input::get('gallery_id');
 
         ## Сохраняем в БД
         $product->save();
@@ -335,6 +335,11 @@ class AdminProductionProductsController extends BaseController {
                 'gallery' => Input::get('gallery'),
             ));
         endif;
+
+        $this->product->gallery_id = $gallery_id;
+        $this->product->save();
+
+
         return $gallery_id;
     }
 }

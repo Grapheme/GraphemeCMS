@@ -11,7 +11,7 @@ class ChannelController extends BaseController {
      * и создайте шаблоны с соответствующими именами в каталогие views данного модуля
      */
 
-    public static $prefix_url = array('offer'); # array of FALSE;
+    public static $prefix_url = array(); # array of FALSE;
 
     public static function returnRoutes($prefix = null) {
 
@@ -141,22 +141,26 @@ class ChannelController extends BaseController {
         if(!Allow::enabled_module('channels')):
             return App::abort(404);
         endif;
-
         try{
             $element = ChannelCategory::where('slug', Request::segment(1))->with(array('channel' => function ($query) use ($url) {
-                    $query->where('link', $url);
-                    $query->with('images');
-                }))->first();
+                $query->where('link', $url);
+                $query->with('images');
+                $query->with(array('gallery'=>function($query_gallery){
+                    $query_gallery->with('photos');
+                }));
+            }))->first();
 
             if(!$element):
                 return App::abort(404);
             endif;
+
             if(View::exists($this->tpl.$element->slug) === FALSE) :
                 throw new Exception('Template not found: '.$this->tpl.$element->slug);
             endif;
             if(method_exists('PagesController','content_render')):
                 $element->desc = PagesController::content_render($element->desc);
             endif;
+
             return View::make($this->tpl.$element->slug,
                 array(
                     'page_title' => $element->title.'. '.$element->channel->first()->title,'page_description' => '','page_keywords' => '','page_author' => '',

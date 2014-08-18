@@ -31,67 +31,36 @@ class NewsController extends BaseController {
 
         $tpl = static::returnTpl();
 
-    	shortcode::add("news",
-        
-            function($params = null) use ($tpl) {
+        shortcode::add("news",
+
+            function($params = array()) use ($tpl) {
                 #print_r($params); die;
-        		## Gfhfvtnhs по-умолчанию
+                ## Gfhfvtnhs по-умолчанию
                 $default = array(
                     'tpl' => Config::get('app-default.news_template'),
                     'limit' => Config::get('app-default.news_count_on_page'),
                     'order' => Helper::stringToArray(I18nNews::$order_by),
                     'pagination' => 1,
                 );
-        		## Применяем переданные настройки
-                $params = array_merge($default, $params);
-                #dd($params);
+                ## Применяем переданные настройки
+                $params = is_array($params) ? array_merge($default, $params) : $default;
 
-        		#if(Allow::enabled_module('i18n_news')):
-        		    ## Получаем новости, делаем LEFT JOIN с news_meta, с проверкой языка и тайтла
-        			$selected_news = I18nNews::where('i18n_news.publication', 1)
-        			                        ->leftJoin('i18n_news_meta', 'i18n_news_meta.news_id', '=', 'i18n_news.id')
-        			                        ->where('i18n_news_meta.language', Config::get('app.locale'))
-        			                        ->where('i18n_news_meta.title', '!=', '')
-        			                        ->select('*', 'i18n_news.id AS original_id', 'i18n_news.published_at AS created_at')
-                                            ->orderBy('i18n_news.published_at', 'desc');
-                                            
-                    #$selected_news = $selected_news->where('i18n_news_meta.wtitle', '!=', '');
+                $locale = Config::get('app.locale');
+                $news = I18nNews::orderBy('published_at','desc')->where('publication', 1)->with(array('meta'=>function($query) use ($locale){
+                    $query->where('language',$locale);
+                    $query->where('title','!=','');
+                }))->with('gallery')->with('images')->paginate($params['limit']);
+//                        ->paginate($params['limit']); ## news list with pagination
 
-                    ## Получаем новости с учетом пагинации
-                    #echo $selected_news->toSql(); die;
-                    #var_dump($params['limit']);
-        			$news = $selected_news->paginate($params['limit']); ## news list with pagination
-        			#$news = $selected_news->get(); ## all news, without pagination
+                print_r($news);
+                exit;
 
-        			foreach ($news as $n => $new) {
-        				#print_r($new); die;
-        				$gall = Rel_mod_gallery::where('module', 'news')->where('unit_id', $new->original_id)->first();
-        				#foreach ($gall->photos as $photo) {
-        				#	print_r($photo->path());
-        				#}
-        				#print_r($gall->photos); die;
-        				$new->gall = @$gall;
-        				$new->image = is_object(@$gall->photos[0]) ? @$gall->photos[0]->path() : "";
-        				$news[$n]->$new;
-        			}
-        			
-                    #echo $news->count(); die;
-                    
-        			if($news->count()) {
+                if(empty($params['tpl']) || !View::exists($tpl.$params['tpl'])):
+                    throw new Exception('Template not found: ' . $tpl.$params['tpl']);
+                endif;
 
-                        #if(empty($params['tpl']) || !View::exists($this->tpl.$params['tpl'])) {
-                        if(empty($params['tpl']) || !View::exists($tpl.$params['tpl'])) {
-                			#return App::abort(404, 'Отсутствует шаблон: ' . $this->tpl . $i18n_news->template);
-        					#return "Отсутствует шаблон: templates.".$params['tpl'];
-                            throw new Exception('Template not found: ' . $tpl.$params['tpl']);
-                        }
-
-    					return View::make($tpl.$params['tpl'], compact('news'));
-        			}
-        		#else:
-        		#	return '';
-        		#endif;
-    	    }
+                return View::make($tpl.$params['tpl'], compact('news'));
+            }
         );
         
     }
@@ -113,14 +82,14 @@ class NewsController extends BaseController {
     
     /****************************************************************************/
 
-	public function __construct(){
+    public function __construct(){
 
         View::share('module_name', self::$name);
 
         $this->tpl = $this->gtpl = static::returnTpl();
         View::share('module_tpl', $this->tpl);
         View::share('module_gtpl', $this->gtpl);
-	}
+    }
     
     /*
     |--------------------------------------------------------------------------
@@ -142,7 +111,7 @@ class NewsController extends BaseController {
             return App::abort(404);
 
         if(empty($i18n_news->template) || !View::exists($this->tpl.$i18n_news->template)) {
-			#return App::abort(404, 'Отсутствует шаблон: ' . $this->tpl . $i18n_news->template);
+            #return App::abort(404, 'Отсутствует шаблон: ' . $this->tpl . $i18n_news->template);
             throw new Exception('Template not found: ' . $this->tpl.$i18n_news->template);
         }
 
@@ -151,7 +120,7 @@ class NewsController extends BaseController {
         if(!$i18n_news_meta || !$i18n_news_meta->title)
             return App::abort(404);
 
-		$gall = Rel_mod_gallery::where('module', 'news')->where('unit_id', $i18n_news->id)->first();
+        $gall = Rel_mod_gallery::where('module', 'news')->where('unit_id', $i18n_news->id)->first();
 
         /**
          * @todo После того, как будет сделано управление модулями (актив/неактив) - поменять условие, активен ли модуль страниц
@@ -163,7 +132,7 @@ class NewsController extends BaseController {
 
         return View::make($this->tpl.$i18n_news->template,
             array(
-            	'new' => $i18n_news,
+                'new' => $i18n_news,
                 'news'=>$i18n_news_meta,
                 'page_title'=>$i18n_news_meta->seo_title,
                 'page_description'=>$i18n_news_meta->seo_description,
@@ -174,6 +143,6 @@ class NewsController extends BaseController {
                 'gall' => $gall
             )
         );
-	}
+    }
 
 }

@@ -7,7 +7,7 @@
 
 
 @section('content')
-    <h1>Продукция: &laquo;{{ $channel->title }}&raquo;</h1>
+    <h1>Информационные блоки: &laquo;{{ $channel->title }}&raquo;</h1>
 
 {{ Form::model($channel, array('url'=>link::auth($module['rest'].'/update/'.$channel->id), 'class'=>'smart-form', 'id'=>'channel-form', 'role'=>'form', 'method'=>'post','files'=>true)) }}
 	<div class="row margin-top-10">
@@ -52,6 +52,12 @@
                             {{ ExtForm::image('image', @$channel->photo()) }}
                         </label>
                     </section>
+                   <section>
+                       <label class="label">Галерея</label>
+                       <label class="input">
+                           {{ ExtForm::gallery('gallery',@$channel->gallery,array('id'=>'gallery-input-id')) }}
+                       </label>
+                   </section>
                     @endif
 
 					<section>
@@ -69,7 +75,7 @@
                     <section>
                         <label class="label">Файл</label>
                         <label class="input input-file" for="file">
-                            <div class="button"><input type="file" onchange="this.parentNode.nextSibling.value = this.value" name="file">Выбрать</div><input type="text" readonly=""">
+                            <div class="button"><input type="file" onchange="this.parentNode.nextSibling.value = this.value" name="file">Выбрать</div><input type="text" readonly="">
                         </label>
                         @if(!empty($channel->file))
                         <div class="note">

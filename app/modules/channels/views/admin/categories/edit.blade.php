@@ -21,7 +21,7 @@
                             <div class="note">Может содержать <strong>только</strong> английские буквы в нижнем регистре, цифры, знаки подчеркивания и тире</div>
                         </label>
                         <label class="input col-5"> <i class="icon-append fa fa-list-alt"></i>
-                            {{ Form::text('slug',NULL,array('class'=>'disabled','readonly'=>'readonly')) }}
+                            {{ Form::text('slug') }}
                         </label>
                     </section>
 					<section>

@@ -55,6 +55,12 @@
                             {{ ExtForm::image('image', '') }}
                         </label>
                     </section>
+                    <section>
+                        <label class="label">Галерея</label>
+                        <label class="input">
+                            {{ ExtForm::gallery('gallery','',array('id'=>'gallery-input-id')) }}
+                        </label>
+                    </section>
                     @endif
 
 					<section>
@@ -73,7 +79,7 @@
                     <section>
                         <label class="label">Файл</label>
                         <label class="input input-file" for="file">
-                            <div class="button"><input type="file" onchange="this.parentNode.nextSibling.value = this.value" name="file">Выбрать</div><input type="text" readonly=""">
+                            <div class="button"><input type="file" onchange="this.parentNode.nextSibling.value = this.value" name="file">Выбрать</div><input type="text" readonly="">
                         </label>
                     </section>
                 </fieldset>
